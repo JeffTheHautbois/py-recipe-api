@@ -31,12 +31,12 @@ class RecipeListResource(Resource):
         return recipe.data, HTTPStatus.CREATED
 
 
-class RecipeResource(Resources):
+class RecipeResource(Resource):
 
     def get(self, recipe_id):
 
-        recipe = next(
-            (item for item in recipes if item['id'] == recipe_id), None)
+        recipe = next((recipe for recipe in recipe_list if recipe.id ==
+                       recipe_id and recipe.is_publish == True), None)
 
         if recipe is None:
             return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
@@ -48,7 +48,7 @@ class RecipeResource(Resources):
         data = request.get_json()
 
         recipe = next(
-            (item for item in recipes if item['id'] == recipe_id), None)
+            (recipe for recipe in recipe_list if recipe.id == recipe_id), None)
 
         if recipe is None:
             return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
@@ -64,3 +64,26 @@ class RecipeResource(Resources):
         recipe.directions = data['directions']
 
         return recipe.data, HTTPStatus.OK
+
+
+class RecipePublishResource(Resource):
+
+    def put(self, recipe_id):
+        recipe = next(
+            (item for item in recipe_list if item.id == recipe_id), None)
+        if recipe is None:
+            return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
+
+        recipe.is_publish = True
+
+        return {}, HTTPStatus.NO_CONTENT
+
+    def delete(self, recipe_id):
+        recipe = next(
+            (item for item in recipe_list if item.id == recipe_id), None)
+        if recipe is None:
+            return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
+
+        recipe.is_publish = False
+
+        return {}, HTTPStatus.NO_CONTENT
